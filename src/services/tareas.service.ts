@@ -104,7 +104,4 @@ export const obtenerHistorialDeTarea = async (tareaId: number, usuarioId: number
     return await historialRepo().findBy({ tareaId });
 }
 
-//si la empresa puede utilizar qr
-//crear empresa
-//superadmin &akx emial
-// ver 
+
