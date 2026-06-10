@@ -19,6 +19,12 @@ for (const key of required) {
     }
 }
 
+export enum NodeEnv {
+    Development = 'development',
+    Production = 'production',
+    Test = 'test',
+}
+
 export const env = {
     db: {
         host: process.env.DB_HOST!,
@@ -28,7 +34,7 @@ export const env = {
         name: process.env.DB_NAME!
     },
     port: parseInt(process.env.PORT!),
-    nodeEnv: process.env.NODE_ENV ?? 'development',
+    nodeEnv: (process.env.NODE_ENV as NodeEnv) ?? NodeEnv.Development,
     jwt: {
         secret: process.env.JWT_SECRET!,
         expiresIn: process.env.JWT_EXPIRES_IN!

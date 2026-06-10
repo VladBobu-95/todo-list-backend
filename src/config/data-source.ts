@@ -2,9 +2,9 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import {env} from './env';
-import { Usuario } from '../entities/Usuario';
-import { Tarea } from '../entities/Tarea';
-import { Historial } from '../entities/Historial';
+import { User } from '../entities/User';
+import { Task } from '../entities/Task';
+import { TaskHistory } from '../entities/TaskHistory';
 
 export const AppDataSource = new DataSource({
     type: 'mysql',
@@ -13,7 +13,7 @@ export const AppDataSource = new DataSource({
     username: env.db.user,
     password: env.db.password,
     database: env.db.name,
-    entities: [Historial, Tarea, Usuario],
+    entities: [TaskHistory, Task, User],
     migrations: ['src/migrations/*.ts'],
     synchronize: false,
     logging: env.nodeEnv === 'development'

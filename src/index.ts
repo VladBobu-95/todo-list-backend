@@ -1,17 +1,18 @@
 import 'reflect-metadata';
-import {AppDataSource} from './config/data-source';
+import { AppDataSource } from './config/data-source';
 import app from './app';
 import { env } from './config/env';
+import { logger } from './utils/logger';
 
 async function main() {
     try {
         await AppDataSource.initialize();
-        console.log('Database connection established successfully.');
+        logger.info('Database connection established successfully.');
         app.listen(env.port, () => {
-            console.log(`Server is running on port ${env.port}`);
+            logger.info({ port: env.port }, 'Server is running');
         });
     } catch (error) {
-        console.error('Error during Data Source initialization:', error);
+        logger.error({ err: error }, 'Error during Data Source initialization');
         process.exit(1);
     }
 }

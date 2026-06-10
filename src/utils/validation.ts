@@ -3,40 +3,38 @@ import { ValidationError } from "./errors";
 
 
 export const loginSchema = z.object({
-    email: z.email({ message: "Email inválido" }),
-    password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
+    email: z.email({ message: "Invalid email" }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export const registerSchema = z.object({
-    nombre: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
-    email: z.email({ message: "Email inválido" }),
-    password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
+    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+    email: z.email({ message: "Invalid email" }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-export const crearTareaSchema = z.object({
-    titulo: z.string().min(1, { message: "El título es obligatorio" }),
-    descripcion: z.string().optional(),
+export const createTaskSchema = z.object({
+    title: z.string().min(1, { message: "Title is required" }),
+    description: z.string().optional(),
 });
 
-export const cambiarPasswordSchema = z.object({
-    passwordActual: z.string().min(6),
-    passwordNuevo: z.string().min(6),
+export const changePasswordSchema = z.object({
+    currentPassword: z.string().min(6),
+    newPassword: z.string().min(6),
+});
+
+export const updateTaskSchema = z.object({
+    title: z.string().min(1).optional(),
+    description: z.string().optional(),
+    completed: z.boolean().optional(),
 });
 
 
-export const actualizarTareaSchema = z.object({
-    titulo: z.string().min(1).optional(),
-    descripcion: z.string().optional(),
-    completada: z.boolean().optional(),
-});
-
-
-export function validar<T>(schema: ZodSchema<T>, data: unknown): T {
+export function validate<T>(schema: ZodSchema<T>, data: unknown): T {
     const result = schema.safeParse(data);
     if (!result.success) {
-        const primerError = result.error.issues[0];
-        throw new ValidationError(primerError.message);
+        const firstError = result.error.issues[0];
+        throw new ValidationError(firstError.message);
     }
     return result.data;
 }
-

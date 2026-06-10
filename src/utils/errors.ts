@@ -1,5 +1,4 @@
 
-
 export class AppError extends Error {
     statusCode: number;
 
@@ -12,20 +11,19 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-    constructor(message: string = "Datos de entrada no válidos") {
+    constructor(message: string = "Invalid input data") {
         super(message, 400);
     }
 }
 
 export class NotFoundError extends AppError {
-    constructor(message: string = "Recurso no encontrado") {
+    constructor(message: string = "Resource not found") {
         super(message, 404);
     }
 }
 
 export class UnauthorizedError extends AppError {
-    constructor(message: string = "No autorizado") {
+    constructor(message: string = "Unauthorized") {
         super(message, 401);
     }
 }
-

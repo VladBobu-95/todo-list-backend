@@ -1,13 +1,13 @@
 import { AppDataSource } from "../config/data-source";
-import { Usuario } from "../entities/Usuario";
+import { User } from "../entities/User";
 import bcrypt from 'bcrypt';
 import { ValidationError, UnauthorizedError, NotFoundError } from "../utils/errors";
 import jwt from 'jsonwebtoken';
 import { env } from "../config/env";
 
-const userRepo = () => AppDataSource.getRepository(Usuario);
+const userRepo = () => AppDataSource.getRepository(User);
 
-const getUsuarioByEmail = async (email: string) => {
+const getUserByEmail = async (email: string) => {
     return await userRepo().findOneBy({ email });
 }
 
@@ -15,34 +15,36 @@ const hashPassword = async (password: string) => {
     return await bcrypt.hash(password, 10);
 }
 
-export const registrarUsuario = async (nombre: string, email: string, password: string) => {
-    if (await getUsuarioByEmail(email)) {
-        throw new ValidationError("Email ya existe");
+export const registerUser = async (name: string, email: string, password: string) => {
+    if (await getUserByEmail(email)) {
+        throw new ValidationError("Email already exists");
     }
 
     const hashedPassword = await hashPassword(password);
-    const usuario = userRepo().create({
-        nombre,
+    const user = userRepo().create({
+        name,
         email,
         password: hashedPassword
     });
-    return await userRepo().save(usuario);
+    const saved = await userRepo().save(user);
+    const { password: _, ...safeUser } = saved;
+    return safeUser;
 }
 
 export const login = async (email: string, password: string) => {
-    const usuario = await getUsuarioByEmail(email);
+    const user = await getUserByEmail(email);
 
-    if (!usuario) {
-        throw new UnauthorizedError("Credenciales incorrectas");
+    if (!user) {
+        throw new UnauthorizedError("Invalid credentials");
     }
 
-    const passwordValid = await bcrypt.compare(password, usuario.password);
+    const passwordValid = await bcrypt.compare(password, user.password);
     if (!passwordValid) {
-        throw new UnauthorizedError("Credenciales incorrectas");
+        throw new UnauthorizedError("Invalid credentials");
     }
 
     const token = jwt.sign(
-        { sub: usuario.id, email: usuario.email },
+        { sub: user.id, email: user.email },
         env.jwt.secret,
         { expiresIn: env.jwt.expiresIn as any }
     );
@@ -50,23 +52,22 @@ export const login = async (email: string, password: string) => {
     return token;
 }
 
-export const obtenerUsuarioActual = async (id: number) => {    
-return await userRepo().findOne({
-    where: { id },
-    select: { id: true, nombre: true, email: true, createdAt: true }
-});
+export const getCurrentUser = async (id: number) => {
+    return await userRepo().findOne({
+        where: { id },
+        select: { id: true, name: true, email: true, createdAt: true }
+    });
 }
 
-export const cambiarPassword = async (usuarioId: number, passwordActual: string, passwordNuevo: string) => {
-    const usuario = await userRepo().findOneBy({ id: usuarioId });
-    if (!usuario) {
-        throw new NotFoundError("Usuario no encontrado");
+export const changePassword = async (userId: number, currentPassword: string, newPassword: string) => {
+    const user = await userRepo().findOneBy({ id: userId });
+    if (!user) {
+        throw new NotFoundError("User not found");
     }
-    const passwordValid = await bcrypt.compare(passwordActual, usuario.password);
+    const passwordValid = await bcrypt.compare(currentPassword, user.password);
     if (!passwordValid) {
-        throw new UnauthorizedError("Contraseña actual incorrecta");
+        throw new UnauthorizedError("Incorrect current password");
     }
-    usuario.password = await hashPassword(passwordNuevo);
-    return await userRepo().save(usuario);
+    user.password = await hashPassword(newPassword);
+    return await userRepo().save(user);
 }
-
